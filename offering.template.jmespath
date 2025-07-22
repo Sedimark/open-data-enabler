@@ -1,0 +1,108 @@
+{
+  "@context": {
+    "@vocab": 'https://w3id.org/sedimark/ontology#',
+    "sedi": 'https://w3id.org/sedimark/ontology#',
+    "dct": 'http://purl.org/dc/terms/',
+    "odrl": 'http://www.w3.org/ns/odrl/2/',
+    "owl": 'http://www.w3.org/2002/07/owl#',
+    "rdf": 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+    "xml": 'http://www.w3.org/XML/1998/namespace',
+    "xsd": 'http://www.w3.org/2001/XMLSchema#',
+    "rdfs": 'http://www.w3.org/2000/01/rdf-schema#',
+    "dcat": 'http://www.w3.org/ns/dcat#'
+  },
+  "@id": '_',
+  "@type": 'sedi:Offering',
+  "sedi:isListedBy": {
+    "@id": 'https://uc.sedimark.eu/offerings'
+  },
+  "sedi:hasOfferingContract": {
+    "@id": '_',
+    "@type": 'sedi:OfferingContract',
+    "odrl:permission": odrl.permission,
+    "odrl:prohibition": odrl.prohibition,
+    "odrl:obligation": odrl.obligation
+  },
+  "dct:issued": {
+    "@value": offering.dct_issued,
+    "@type": 'rdfs:Literal'
+  },
+  "dct:language": {
+    "@value": offering.dct_language,
+    "@type": 'rdfs:Literal'
+  },
+  "dct:title": {
+    "@value": offering.dct_title,
+    "@type": 'rdfs:Literal'
+  },
+  "dct:description": {
+    "@value": offering.dct_description,
+    "@type": 'rdfs:Literal'
+  },
+  "dct:publisher": {
+    "@id": offering.dct_publisher
+  },
+  "dct:creator": {
+    "@id": offering.dct_publisher
+  },
+  "dcat:themeTaxonomy": {
+    "@id": 'https://w3id.org/sedimark/vocab/sdm'
+  },
+  "dct:license": {
+    "@value": offering.dct_license,
+    "@type": 'rdfs:Literal'
+  },
+  "sedi:hasAsset": [{
+    "@id": '_',
+    "@type": 'sedi:DataAsset',
+    "dct:title": {
+      "@value": offering.dct_title,
+      "@type": 'rdfs:Literal'
+    },
+    "sedi:offeredBy": {
+      "@id": "_"
+    },
+    "dct:description": {
+      "@value": asset.dct_description,
+      "@type": 'rdfs:Literal'
+    },
+    "dct:issued": {
+      "@value": asset.dct_issued,
+      "@type": 'rdfs:Literal'
+    },
+    "dct:creator": {
+      "@id": offering.dct_publisher
+    },
+    "dcat:theme": {
+      "@id": asset.dct_theme
+    },
+    "dcat:keyword" : asset.dcat_keyword,
+    "dct:spatial" : {
+      "@id": asset.dct_spatial,
+      "@type": 'dct:Location'
+    },
+    "sedi:isProvidedBy" : {
+      "@id": '_',
+      "@type": 'sedi:AssetProvision',
+      "dct:title": {
+        "@value": asset_provision.dct_title,
+        "@type": 'rdfs:Literal'
+      },
+      "dct:format": {
+        "@id": 'HttpData'
+      },
+      "dct:description": {
+        "@value": asset_provision.dct_description,
+        "@type": 'rdfs:Literal'
+      },
+      "dct:issued": {
+        "@value": asset_provision.dct_issued,
+        "@type": 'rdfs:Literal'
+      },
+      "dcat:accessURL": {
+        "@id": asset_provision.dcat_accessURL
+      }
+    }
+  }
+  ]
+}
