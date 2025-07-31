@@ -1,5 +1,22 @@
 import rdflib, json, jmespath
 
+def custom_get(value):
+    """
+    Custom function to handle different types of values.
+    
+    Args:
+        value: The value to be processed.
+        
+    Returns:
+        str: The string representation of the value.
+    """
+    if isinstance(value, dict):
+        return value.get('@value', value.get('@id', ''))
+    elif isinstance(value, list):
+        return [custom_get(v) for v in value]
+    else:
+        return str(value)
+
 def read_rdf_to_dict(rdf_file):
     """
     Reads an RDF file and converts it to a dictionary.
@@ -16,24 +33,12 @@ def read_rdf_to_dict(rdf_file):
     except Exception as e:
         raise ValueError(f"Error parsing RDF file: {e}")
     
-    rdf_dict = {}
-    
-    for s, p, o in g:
-        subject = str(s)
-        predicate = str(p)
-        object_ = str(o)
-        
-        if subject not in rdf_dict:
-            rdf_dict[subject] = {}
-        
-        if predicate not in rdf_dict[subject]:
-            rdf_dict[subject][predicate] = []
-        
-        rdf_dict[subject][predicate].append(object_)
-    
+    rdf_dict = g.serialize(format='json-ld', encoding='utf-8')
+    rdf_dict = json.loads(rdf_dict)
+
     return rdf_dict
 
-def extract_params(rdf_dict):
+def extract_params(rdf_dict, access_url=None):
     """
     Extracts parameters from the RDF dictionary.
     
@@ -49,68 +54,83 @@ def extract_params(rdf_dict):
     params_dict['asset_provision'] = dict()
     distribution_found = False
     
-    for subject, predicates in rdf_dict.items():
+    for entry in rdf_dict:
         
-        if('/' not in subject): continue
+        entry_type = entry.get('@type', [])[0]
         
-        if subject.split('/')[-2] == 'dataset': # dataset level
+        if 'http://www.w3.org/ns/locn#geometry' in entry:
+            params_dict['asset']['dct_spatial'] = custom_get(entry['http://www.w3.org/ns/locn#geometry'][0])
+        
+        if entry_type == 'http://www.w3.org/ns/dcat#Dataset':
             
-            if 'http://purl.org/dc/terms/issued' in predicates:
-                params_dict['offering']['dct_issued'] = predicates['http://purl.org/dc/terms/issued'][0]
-            if 'http://purl.org/dc/terms/language' in predicates:
-                params_dict['offering']['dct_language'] = predicates['http://purl.org/dc/terms/language'][0]
-            if 'http://purl.org/dc/terms/title' in predicates:
-                params_dict['offering']['dct_title'] = predicates['http://purl.org/dc/terms/title'][0]
-            if 'http://purl.org/dc/terms/description' in predicates:
-                params_dict['offering']['dct_description'] = predicates['http://purl.org/dc/terms/description'][0]
-            if 'http://purl.org/dc/terms/publisher' in predicates:
-                params_dict['offering']['dct_publisher'] = predicates['http://purl.org/dc/terms/publisher'][0]
-            if 'http://purl.org/dc/terms/creator' in predicates:
-                params_dict['offering']['dct_creator'] = predicates['http://purl.org/dc/terms/creator'][0]
+            if 'http://purl.org/dc/terms/issued' in entry:
+                params_dict['offering']['dct_issued'] = custom_get(entry['http://purl.org/dc/terms/issued'][0])
+            if 'http://purl.org/dc/terms/language' in entry:
+                params_dict['offering']['dct_language'] = custom_get(entry['http://purl.org/dc/terms/language'][0])
+            if 'http://purl.org/dc/terms/title' in entry:
+                params_dict['offering']['dct_title'] = custom_get(entry['http://purl.org/dc/terms/title'][0])
+            if 'http://purl.org/dc/terms/description' in entry:
+                params_dict['offering']['dct_description'] = custom_get(entry['http://purl.org/dc/terms/description'][0])
+            if 'http://purl.org/dc/terms/publisher' in entry:
+                params_dict['offering']['dct_publisher'] = custom_get(entry['http://purl.org/dc/terms/publisher'][0])
+            if 'http://purl.org/dc/terms/creator' in entry:
+                params_dict['offering']['dct_creator'] = custom_get(entry['http://purl.org/dc/terms/creator'][0])
 
-            if 'http://www.w3.org/ns/dcat#theme' in predicates:
-                params_dict['asset']['dct_theme'] = predicates['http://www.w3.org/ns/dcat#theme'][0]
-            if 'http://www.w3.org/ns/dcat#keyword' in predicates:
-                params_dict['asset']['dcat_keyword'] = predicates['http://www.w3.org/ns/dcat#keyword']
-            if 'http://www.w3.org/ns/locn#geometry' in predicates:
-                params_dict['asset']['dct_spatial'] = predicates['http://www.w3.org/ns/locn#geometry'][0]
-            if 'http://purl.org/dc/terms/description' in predicates:
-                params_dict['asset']['dct_description'] = predicates['http://purl.org/dc/terms/description'][0]
-            if 'http://purl.org/dc/terms/issued' in predicates:
-                params_dict['asset']['dct_issued'] = predicates['http://purl.org/dc/terms/issued'][0]
-            if 'http://purl.org/dc/terms/creator' in predicates:
-                params_dict['asset']['dct_creator'] = predicates['http://purl.org/dc/terms/creator'][0]
-                
+            if 'http://www.w3.org/ns/dcat#theme' in entry:
+                params_dict['asset']['dct_theme'] = custom_get(entry['http://www.w3.org/ns/dcat#theme'][0])
+            if 'http://www.w3.org/ns/dcat#keyword' in entry:
+                params_dict['asset']['dcat_keyword'] = [custom_get(kw) for kw in entry['http://www.w3.org/ns/dcat#keyword']]
+            if 'http://purl.org/dc/terms/description' in entry:
+                params_dict['asset']['dct_description'] = custom_get(entry['http://purl.org/dc/terms/description'][0])
+            if 'http://purl.org/dc/terms/issued' in entry:
+                params_dict['asset']['dct_issued'] = custom_get(entry['http://purl.org/dc/terms/issued'][0])
+            if 'http://purl.org/dc/terms/creator' in entry:
+                params_dict['asset']['dct_creator'] = custom_get(entry['http://purl.org/dc/terms/creator'][0])
+
             if distribution_found:
                 break
 
-        elif subject.split('/')[-2] == 'resource': # distribution level
+        elif entry_type == 'http://www.w3.org/ns/dcat#Distribution':
             
             if distribution_found:
                 continue
             
+            if access_url is not None:
+                if 'http://www.w3.org/ns/dcat#accessURL' in entry:
+                    if entry['http://www.w3.org/ns/dcat#accessURL'][0]["@id"] == access_url:
+                        pass
+                    else:
+                        continue
+                else:
+                    continue
+            
             distribution_found = True
             
-            if 'http://purl.org/dc/terms/license' in predicates:
-                params_dict['offering']['dct_license'] = predicates['http://purl.org/dc/terms/license'][0]
-            if 'http://purl.org/dc/terms/title' in predicates:
-                params_dict['asset_provision']['dct_title'] = predicates['http://purl.org/dc/terms/title'][0]
-            if 'http://purl.org/dc/terms/format' in predicates:
-                params_dict['asset_provision']['dct_format'] = predicates['http://purl.org/dc/terms/format'][0]
-            if 'http://purl.org/dc/terms/description' in predicates:
-                params_dict['asset_provision']['dct_description'] = predicates['http://purl.org/dc/terms/description'][0]
-            if 'http://purl.org/dc/terms/issued' in predicates:
-                params_dict['asset_provision']['dct_issued'] = predicates['http://purl.org/dc/terms/issued'][0]
-            if 'http://www.w3.org/ns/dcat#accessURL' in predicates:
-                params_dict['asset_provision']['dcat_accessURL'] = predicates['http://www.w3.org/ns/dcat#accessURL'][0]
-                
+            if 'http://purl.org/dc/terms/license' in entry:
+                params_dict['offering']['dct_license'] = custom_get(entry['http://purl.org/dc/terms/license'][0])
+            if 'http://purl.org/dc/terms/title' in entry:
+                params_dict['asset_provision']['dct_title'] = custom_get(entry['http://purl.org/dc/terms/title'][0])
+            if 'http://purl.org/dc/terms/format' in entry:
+                params_dict['asset_provision']['dct_format'] = custom_get(entry['http://purl.org/dc/terms/format'][0])
+            if 'http://purl.org/dc/terms/description' in entry:
+                params_dict['asset_provision']['dct_description'] = custom_get(entry['http://purl.org/dc/terms/description'][0])
+            if 'http://purl.org/dc/terms/issued' in entry:
+                params_dict['asset_provision']['dct_issued'] = custom_get(entry['http://purl.org/dc/terms/issued'][0])
+            if 'http://www.w3.org/ns/dcat#accessURL' in entry:
+                params_dict['asset_provision']['dcat_accessURL'] = custom_get(entry['http://www.w3.org/ns/dcat#accessURL'][0])
+
             params_dict['odrl'] = {
                 'permission': [],
                 'prohibition': [],
                 'obligation': []
             }
     
-    return params_dict
+    if not distribution_found:
+        error = "No valid distribution found in the RDF data for the access URL given."
+    else:
+        error = None
+
+    return params_dict, error
 
 def create_offering(params_dict):
     """

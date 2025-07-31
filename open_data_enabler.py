@@ -28,13 +28,20 @@ app = Flask(__name__)
 @app.route('/newoffering', methods=['POST'])
 def new_offering():
     req = request.get_json()
-    if 'url' not in req:
-        return jsonify({'error': 'URL not provided'}), 400
-    url = req['url']
+    if 'dcatRDF' not in req:
+        return jsonify({'error': 'URL not provided. Expected URL to crawl in the dcatRDF field.'}), 400
+    url = req['dcatRDF']
+    if 'accessURL' in req:
+        access_url = req['accessURL']
+    else:
+        access_url = None
     logger.info(f"Crawling URL: {url}")
     try:
         rdf_dict = read_rdf_to_dict(url)
-        params_dict = extract_params(rdf_dict)
+        params_dict, error = extract_params(rdf_dict, access_url=access_url)
+        if error:
+            logger.error(f"{error}")
+            return jsonify({'error': error}), 400
         offering = create_offering(params_dict)
         return jsonify(offering), 200
     
