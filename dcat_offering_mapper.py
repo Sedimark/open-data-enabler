@@ -71,15 +71,22 @@ def extract_params(rdf_dict, access_url=None):
                 params_dict['offering']['dct_title'] = custom_get(entry['http://purl.org/dc/terms/title'][0])
             if 'http://purl.org/dc/terms/description' in entry:
                 params_dict['offering']['dct_description'] = custom_get(entry['http://purl.org/dc/terms/description'][0])
+            # The publisher is being replaced by the provider DID in the OfferingManager
             if 'http://purl.org/dc/terms/publisher' in entry:
                 params_dict['offering']['dct_publisher'] = custom_get(entry['http://purl.org/dc/terms/publisher'][0])
-            if 'http://purl.org/dc/terms/creator' in entry:
-                params_dict['offering']['dct_creator'] = custom_get(entry['http://purl.org/dc/terms/creator'][0])
-
+            # No creator at the Offering level anymore
+            # if 'http://purl.org/dc/terms/creator' in entry:
+            #     params_dict['offering']['dct_creator'] = custom_get(entry['http://purl.org/dc/terms/creator'][0])
             if 'http://www.w3.org/ns/dcat#theme' in entry:
                 params_dict['asset']['dct_theme'] = custom_get(entry['http://www.w3.org/ns/dcat#theme'][0])
             if 'http://www.w3.org/ns/dcat#keyword' in entry:
-                params_dict['asset']['dcat_keyword'] = [custom_get(kw) for kw in entry['http://www.w3.org/ns/dcat#keyword']]
+                keywords = []
+                for kw in entry['http://www.w3.org/ns/dcat#keyword']:
+                    type_value = dict()
+                    type_value['@type'] = "xsd:string"
+                    type_value['@value'] = custom_get(kw)
+                    keywords.append(type_value)
+                params_dict['asset']['dcat_keyword'] = keywords
             if 'http://purl.org/dc/terms/description' in entry:
                 params_dict['asset']['dct_description'] = custom_get(entry['http://purl.org/dc/terms/description'][0])
             if 'http://purl.org/dc/terms/issued' in entry:
@@ -119,11 +126,11 @@ def extract_params(rdf_dict, access_url=None):
             if 'http://www.w3.org/ns/dcat#accessURL' in entry:
                 params_dict['asset_provision']['dcat_accessURL'] = custom_get(entry['http://www.w3.org/ns/dcat#accessURL'][0])
 
-            params_dict['odrl'] = {
-                'permission': [],
-                'prohibition': [],
-                'obligation': []
-            }
+            # params_dict['odrl'] = {
+            #     'permission': [],
+            #     'prohibition': [],
+            #     'obligation': []
+            # }
     
     if not distribution_found:
         error = "No valid distribution found in the RDF data for the access URL given."

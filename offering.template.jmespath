@@ -1,43 +1,119 @@
 {
   "@context": {
-    "@vocab": 'https://w3id.org/sedimark/ontology#',
-    "sedi": 'https://w3id.org/sedimark/ontology#',
-    "dct": 'http://purl.org/dc/terms/',
-    "odrl": 'http://www.w3.org/ns/odrl/2/',
-    "owl": 'http://www.w3.org/2002/07/owl#',
-    "rdf": 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-    "xml": 'http://www.w3.org/XML/1998/namespace',
-    "xsd": 'http://www.w3.org/2001/XMLSchema#',
-    "rdfs": 'http://www.w3.org/2000/01/rdf-schema#',
-    "dcat": 'http://www.w3.org/ns/dcat#'
+    "@vocab": "https://w3id.org/sedimark/vocab/",
+    "sedi": "https://w3id.org/sedimark/ontology#",
+    "dct": "http://purl.org/dc/terms/",
+    "odrl": "http://www.w3.org/ns/odrl/2/",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "xml": "http://www.w3.org/XML/1998/namespace",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "schema": "https://schema.org/"
   },
-  "@id": '_',
+  "@id": 'https://uc-provider.sedimark.eu/offerings/dummy-offering-id',
   "@type": 'sedi:Offering',
   "sedi:isListedBy": {
-    "@id": 'https://uc.sedimark.eu/offerings'
+    "@id": "https://uc-provider.sedimark.eu/offerings",
+    "@type": "sedi:Self-Listing",
+    "sedi:belongsTo" : {
+      "@id" : "https://uc-provider.sedimark.eu/participant-URI",
+      "@type" : "sedi:Participant",
+      "schema:alternateName" : {
+        "@value": "uc-provider",
+        "@type": "xsd:string"
+      },
+      "schema:accountId" : {
+        "@value": "did:iota:lnk:0xf053682e4724ba221e2f49dd0adabba135cd4ccb08d492440e163482064b617a",
+        "@type": "xsd:string"
+      }
+    }
   },
   "sedi:hasOfferingContract": {
-    "@id": '_',
+    "@id": 'https://uc.sedimark.eu/offerings/dummy-offering-id/offeringContract/dummy-offeringContract-id',
     "@type": 'sedi:OfferingContract',
-    "odrl:permission": odrl.permission,
-    "odrl:prohibition": odrl.prohibition,
-    "odrl:obligation": odrl.obligation
+    "odrl:permission": [{
+      "odrl:target": "https://uc-provider.sedimark.eu/offerings/dummy-offering-id",
+      "odrl:assigner": "did:iota:lnk:0xf053682e4724ba221e2f49dd0adabba135cd4ccb08d492440e163482064b617a",
+      "odrl:action": "odrl:use",
+      "odrl:constraint": [
+        {
+          "odrl:leftOperand": "odrl:dateTime",
+          "odrl:operator": {
+            "@id" : "odrl:lteq"
+          },
+          "odrl:rightOperand": {"@value": "2025-12-31T00:00:00Z", "@type": "xsd:dateTime"}
+        },
+        {
+          "odrl:leftOperand": "odrl:dateTime",
+          "odrl:operator": {
+            "@id" : "odrl:gteq"
+          },
+          "odrl:rightOperand": {"@value": "2025-08-31T00:00:00Z", "@type": "xsd:dateTime"}
+        },
+        {
+          "odrl:leftOperand" : "sedi:claimMemberOf",
+          "odrl:operator"    : {
+            "@id" : "odrl:eq"
+          },
+          "odrl:rightOperand": "SEDIMARK marketplace"
+        },
+        {
+          "odrl:leftOperand" : "sedi:dataTokenOwnership",
+          "odrl:operator"    : {
+            "@id" : "odrl:eq"
+          },
+          "odrl:rightOperand": "true"
+        }
+      ],
+      "odrl:duty": [
+        {
+          "odrl:action": [
+            {
+              "odrl:action" : "sedi:purchaseDataToken",
+              "odrl:refinement": [
+                {
+                  "odrl:leftOperand": "odrl:payAmount",
+                  "odrl:operator": {
+                    "@id" : "odrl:eq"
+                  },
+                  "odrl:rightOperand": {"@value": "1", "@type": "xsd:decimal"},
+                  "odrl:unit": "sedi:nativeToken"
+                }
+              ]
+            }
+          ],
+          "odrl:constraint": [
+            {
+              "odrl:leftOperand": "odrl:event",
+              "odrl:operator": {
+            "@id" : "odrl:lt"
+          },
+              "odrl:rightOperand": "sedi:dspContractAgreementFinalized"
+            }
+          ]
+        }
+      ]
+    }],
+    "odrl:prohibition": [],
+    "odrl:obligation": []
   },
   "dct:issued": {
     "@value": offering.dct_issued,
-    "@type": 'rdfs:Literal'
+    "@type": 'xsd:dateTime'
   },
   "dct:language": {
     "@value": offering.dct_language,
-    "@type": 'rdfs:Literal'
+    "@type": 'xsd:string'
   },
   "dct:title": {
     "@value": offering.dct_title,
-    "@type": 'rdfs:Literal'
+    "@type": 'xsd:string'
   },
   "dct:description": {
     "@value": offering.dct_description,
-    "@type": 'rdfs:Literal'
+    "@type": 'xsd:string'
   },
   "dct:publisher": {
     "@id": offering.dct_publisher
@@ -50,28 +126,29 @@
   },
   "dct:license": {
     "@value": offering.dct_license,
-    "@type": 'rdfs:Literal'
+    "@type": 'xsd:string'
   },
   "sedi:hasAsset": [{
-    "@id": '_',
+    "@id": 'https://uc.sedimark.eu/offerings/dummy-offering-id/assets/dummy-asset-id',
     "@type": 'sedi:DataAsset',
     "dct:title": {
       "@value": offering.dct_title,
-      "@type": 'rdfs:Literal'
+      "@type": 'xsd:string'
     },
     "sedi:offeredBy": {
-      "@id": "_"
+      "@id": "xsd:string"
     },
     "dct:description": {
       "@value": asset.dct_description,
-      "@type": 'rdfs:Literal'
+      "@type": 'xsd:string'
     },
     "dct:issued": {
       "@value": asset.dct_issued,
-      "@type": 'rdfs:Literal'
+      "@type": 'xsd:dateTime'
     },
     "dct:creator": {
-      "@id": offering.dct_publisher
+      "@value": asset.dct_creator,
+      "@type": "xsd:string"
     },
     "dcat:theme": {
       "@id": asset.dct_theme
@@ -82,22 +159,22 @@
       "@type": 'dct:Location'
     },
     "sedi:isProvidedBy" : {
-      "@id": '_',
+      "@id": 'https://uc.sedimark.eu/offerings/dummy-offering-id/assetProvision/dummy-assetProvision-id',
       "@type": 'sedi:AssetProvision',
       "dct:title": {
         "@value": asset_provision.dct_title,
-        "@type": 'rdfs:Literal'
+        "@type": 'xsd:string'
       },
       "dct:format": {
         "@id": 'HttpData'
       },
       "dct:description": {
         "@value": asset_provision.dct_description,
-        "@type": 'rdfs:Literal'
+        "@type": 'xsd:string'
       },
       "dct:issued": {
         "@value": asset_provision.dct_issued,
-        "@type": 'rdfs:Literal'
+        "@type": 'xsd:dateTime'
       },
       "dcat:accessURL": {
         "@id": asset_provision.dcat_accessURL
