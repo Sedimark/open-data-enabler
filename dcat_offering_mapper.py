@@ -116,7 +116,7 @@ def extract_params(rdf_dict, access_url=None):
             if 'http://purl.org/dc/terms/license' in entry:
                 params_dict['offering']['dct_license'] = custom_get(entry['http://purl.org/dc/terms/license'][0])
             if 'http://purl.org/dc/terms/title' in entry:
-                params_dict['asset_provision']['dct_title'] = custom_get(entry['http://purl.org/dc/terms/title'][0])
+                params_dict['asset_provision']['dct_title'] = 'https://w3id.org/sedimark/vocab/sdm/domain/' + custom_get(entry['http://purl.org/dc/terms/title'][0])
             if 'http://purl.org/dc/terms/format' in entry:
                 params_dict['asset_provision']['dct_format'] = custom_get(entry['http://purl.org/dc/terms/format'][0])
             if 'http://purl.org/dc/terms/description' in entry:
@@ -163,5 +163,8 @@ def create_offering(params_dict):
             return d
         
     offering = remove_nulls(offering)
+    
+    offering["sedi:hasOfferingContract"]["odrl:prohibition"] = []
+    offering["sedi:hasOfferingContract"]["odrl:obligation"] = []
     
     return offering

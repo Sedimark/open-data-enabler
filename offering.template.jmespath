@@ -115,10 +115,11 @@
     "@type": 'xsd:string'
   },
   "dct:publisher": {
-    "@id": offering.dct_publisher
+    "@id": 'did:iota:lnk:0xf053682e4724ba221e2f49dd0adabba135cd4ccb08d492440e163482064b617a'
   },
-  "dct:creator": {
-    "@id": offering.dct_publisher
+"dct:creator": {
+    "@value": offering.dct_publisher,
+    "@type": 'xsd:string'
   },
   "dcat:themeTaxonomy": {
     "@id": 'https://w3id.org/sedimark/vocab/sdm'
@@ -135,7 +136,7 @@
       "@type": 'xsd:string'
     },
     "sedi:offeredBy": {
-      "@id": 'xsd:string'
+      "@id": 'https://uc-provider.sedimark.eu/offerings/dummy-offering-id'
     },
     "dct:description": {
       "@value": asset.dct_description,
